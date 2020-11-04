@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset='utf-8' />
+<link href='https://use.fontawesome.com/releases/v5.0.6/css/all.css' rel='stylesheet'>
+<link href='../assets/css/main.css' rel='stylesheet' />
+<script src="https://code.jquery.com/jquery-2.2.4.js" integrity="sha256-iT6Q9iMJYuQiMWNd9lDyBUStIq/8PuOW33aOqmvFpqI=" crossorigin="anonymous"></script>
+<script src='../assets/js/main.js'></script>
+<script src='../assets/js/theme-chooser.js'></script>
+<script>
+
+
+	var storageUrl = 'https://day-01.firebaseio.com/items2.json';
+	var reqUrl = 'https://day-01.firebaseio.com/items.json?orderBy="$key"&startAt="2019-06"&endAt="2019-07"';
+
+	function createCalendar(){
+		$.ajax({
+			url: storageUrl, // 서버에 전달할 파일명
+			type: 'GET', 
+			success: (data, textStatus, jqXHR) => { // 성공시 코드
+				console.log(data)
+				var items;
+				var calendarEl = document.getElementById('calendar');
+				var calendar;
+				var today = helperDateFormat.getToday();
+				
+
+				
+				items = Object.keys(data).map(function (key) { 
+					return data[key];
+				}); 
+				console.log(items)
+				initThemeChooser({
+					init: function(themeSystem) {
+						calendar = new FullCalendar.Calendar(calendarEl, {
+							themeSystem: themeSystem,
+							headerToolbar: {
+								left: 'prev,next today',
+								center: 'title',
+								right: 'dayGridMonth,timeGridWeek,timeGridDay,listMonth'
+							},
+							initialDate: today,
+							weekNumbers: true,
+							navLinks: true, // can click day/week names to navigate views
+							editable: true,
+							selectable: true,
+							nowIndicator: true,
+							dayMaxEvents: true, // allow "more" link when too many events
+							// showNonCurrentDates: false,
+							events: items
+						});
+						calendar.render();
+					},
+
+					change: function(themeSystem) {
+						calendar.setOption('themeSystem', themeSystem);
+					}
+
+				});
+
+
+			}
+		})
+	}
+	
+	
+	
+	/**
+     * @method  helperDateFormat()
+     * @param { null }
+     * @returns { Object }
+     * @description 
+     */
+	var helperDateFormat = (function(){
+		
+		var date = new Date();
+		
+
+		return {
+			getDate(){
+				return date;
+			},
+
+			getToday(){
+
+				return '2020-11-04';
+			},
+			getISOString(){
+				
+				return YYYY-MM-DD-HH-mm-ss;
+			}
+		}
+	})()
+
+	console.log(helperDateFormat.getDate())
+
+
+
+	$.fn.serializeObject = function() {
+		var result = {}
+
+		var extend = function(i, element) {
+			var node = result[element.name]
+			if ("undefined" !== typeof node && node !== null) {
+				if ($.isArray(node)) {
+					node.push(element.value)
+				} else {
+					result[element.name] = [node, element.value]
+				}
+			} else {
+				result[element.name] = element.value
+			}
+		}
+
+		$.each(this.serializeArray(), extend)
+		return result
+	}
+
+	 /**
+     * @method  format()
+     * @param { date }
+     * @returns { String }
+     * @description new Date()를 인자로 받고 YYYY-MM-DD-HH-mm-ss 형식의 포맷을 리턴해주는 함수 
+     */
+	function format(date){
+
+		
+		return YYYY-MM-DD-HH-mm-ss;
+	}
+
+	function updateItem(){
+		
+		var serializeObject = $('#form1').serializeObject();
+		console.log(serializeObject)
+		var obj = new Object();
+
+		var period =  null; //helperDateFormat.getISOString()
+		obj.id = period;
+		obj.teamName = serializeObject.teamName;
+		obj.title = serializeObject.title;
+		obj.managerTel = serializeObject.managerTel;;
+		obj.start = null;
+		obj.end = null;
+
+		var newData = JSON.stringify(obj);
+
+		// $.ajax({
+		// 	url: `https://day-01.firebaseio.com/items2/${obj.id}.json`, // 서버에 전달할 파일명
+		// 	dataType: 'text',
+		// 	cache : false,
+		// 	processData: false,
+        //     contentType: false,
+		// 	type: 'PUT',
+		// 	data: newData,
+		// 	success: function() {
+		// 		console.log('save success'); // 성공시 코드
+		// 		createCalendar()
+		// 	}
+		// });
+	}
+
+
+
+	document.addEventListener('DOMContentLoaded', function() {
+		createCalendar();
+
+	});
+
+
+</script>
+<style>
+  body {
+    margin: 0;
+    padding: 0;
+    font-size: 14px;
+  }
+
+  #top,
+  #calendar.fc-theme-standard {
+    font-family: Arial, Helvetica Neue, Helvetica, sans-serif;
+  }
+
+  #calendar.fc-theme-bootstrap {
+    font-size: 14px;
+  }
+
+  #top {
+    background: #eee;
+    border-bottom: 1px solid #ddd;
+    padding: 0 10px;
+    line-height: 40px;
+    font-size: 12px;
+    color: #000;
+  }
+
+  #top .selector {
+    display: inline-block;
+    margin-right: 10px;
+  }
+
+  #top select {
+    font: inherit; /* mock what Boostrap does, don't compete  */
+  }
+
+  .left { float: left }
+  .right { float: right }
+  .clear { clear: both }
+
+  #calendar {
+    max-width: 1100px;
+    margin: 40px auto;
+    padding: 0 10px;
+  }
+
+</style>
+</head>
+<body>
+
+	<div id='top'>
+
+	<div class='left'>
+
+		<div id='theme-system-selector' class='selector'>
+		Theme System:
+
+		<select>
+			<option value='bootstrap' selected>Bootstrap 4</option>
+			<option value='standard'>unthemed</option>
+		</select>
+		</div>
+
+		<div data-theme-system="bootstrap" class='selector' style='display:none'>
+		Theme Name:
+
+		<select>
+			<option value='' selected>Default</option>
+			<option value='cerulean'>Cerulean</option>
+			<option value='cosmo'>Cosmo</option>
+			<option value='cyborg'>Cyborg</option>
+			<option value='darkly'>Darkly</option>
+			<option value='flatly'>Flatly</option>
+			<option value='journal'>Journal</option>
+			<option value='litera'>Litera</option>
+			<option value='lumen'>Lumen</option>
+			<option value='lux'>Lux</option>
+			<option value='materia'>Materia</option>
+			<option value='minty'>Minty</option>
+			<option value='pulse'>Pulse</option>
+			<option value='sandstone'>Sandstone</option>
+			<option value='simplex'>Simplex</option>
+			<option value='sketchy'>Sketchy</option>
+			<option value='slate'>Slate</option>
+			<option value='solar'>Solar</option>
+			<option value='spacelab'>Spacelab</option>
+			<option value='superhero'>Superhero</option>
+			<option value='united'>United</option>
+			<option value='yeti'>Yeti</option>
+		</select>
+		</div>
+
+		<span id='loading' style='display:none'>loading theme...</span>
+
+	</div>
+
+	<div class='right'>
+		<span class='credits' data-credit-id='bootstrap-standard' style='display:none'>
+		<a href='https://getbootstrap.com/docs/3.3/' target='_blank'>Theme by Bootstrap</a>
+		</span>
+		<span class='credits' data-credit-id='bootstrap-custom' style='display:none'>
+		<a href='https://bootswatch.com/' target='_blank'>Theme by Bootswatch</a>
+		</span>
+	</div>
+
+	<div class='clear'></div>
+	</div>
+
+	<div id='calendar'></div>
+
+	<!-- 저장 -->
+	<form id="form1" name="form1" method="post">
+		<input type="text" name="title">
+		<input type="tel" name="tel">
+		<select name="teamName" id="">
+			<option value="ICT개발1팀">ICT개발1팀</option>
+			<option value="ICT개발2팀">ICT개발2팀</option>
+			<option value="ICT개발3팀">ICT개발3팀</option>
+			<option value="ICT개발4팀">ICT개발4팀</option>
+		</select>
+		<button type="button" id="saveBtn" onclick="updateItem(); return false;">save</button>
+	</form>
+	
+</body>
+</html>
